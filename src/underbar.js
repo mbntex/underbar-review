@@ -87,16 +87,50 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var answer = [];
+    var thisTest = function(thing, index, collect) {
+      if (test(thing) === true) {
+        answer.push(thing);
+      }
+    };
+    _.each(collection, thisTest);
+    return answer;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    // _.filter(collection, test);
+    // var thisTest = function () 
+    var filteredArray = _.filter(collection, test);  
+    var newTest = function(val, index, collection) {
+      if (filteredArray.indexOf(val) === -1) {
+        return true;
+      }
+    }; 
+    return _.filter(collection, newTest);
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator) {
+    var internalArray = array;
+    if (iterator) {
+      var transformedArray = _.map(array, iterator);
+      var obj = {};
+      var arr = [];
+      transformedArray.forEach((val, i) => {
+        if (!obj.hasOwnProperty(val)) {
+          obj[val] = i; 
+        }
+      });
+      Object.keys(obj).forEach(key => {
+        arr.push(array[obj[key]]);
+      });
+      return arr;
+      //var ret = _.uniq(transformedArray);
+    }
+    return Array.from(new Set(internalArray));
   };
 
 
@@ -105,6 +139,14 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var arr = [];
+    var fn = function (item) {
+      arr.push(iterator(item));
+    };
+    _.each(collection, fn);
+    return arr;
+        
+
   };
 
   /*
@@ -146,7 +188,41 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var total;
+    if (arguments.length < 3) {
+      total = collection[0];
+      for (var i = 1; i < collection.length; i++) {
+        total = iterator(total, collection[i]);
+      }
+    } else {
+      total = accumulator;
+      for (var i = 0; i < collection.length; i++) {
+        total = iterator(total, collection[i]);
+      }
+    }
+    return total;
   };
+
+
+
+    // var total = collection [0] || accumulator;
+    // for (var i = 1; i < collection.length; i++) {
+    //   total = iterator(total, collection[i]);
+    // }
+    // if (arguments.length < 2) {
+    //   return accumulator;
+    // } else { 
+    //   return total;  
+    // }
+
+
+    // var total = 0 || accumulator;
+    // var fn = function (value, iterator) {
+    //   total += iterator(total, value);
+    // };
+    // _.each(collection, fn);
+    // return total;
+
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
